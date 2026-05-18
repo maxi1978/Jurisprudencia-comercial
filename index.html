@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNCom · Jurisprudencia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:    #1a1a2e;
+      --paper:  #f5f0e8;
+      --cream:  #ede8dc;
+      --accent: #8b1a1a;
+      --gold:   #c5962a;
+      --muted:  #7a7265;
+      --border: #d4cfc5;
+      --mono:   'IBM Plex Mono', monospace;
+      --serif:  'Playfair Display', Georgia, serif;
+      --sans:   'IBM Plex Sans', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 64px;
+      border-bottom: 3px solid var(--gold);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-logo {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .header-logo span {
+      color: var(--gold);
+    }
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+    .header-sub {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: rgba(245,240,232,0.6);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    #total-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      background: var(--cream);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1.25rem;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+    .filter-group {
+      margin-bottom: 1.75rem;
+    }
+    .filter-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-wrap {
+      position: relative;
+    }
+    #search {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.55rem 0.75rem 0.55rem 2rem;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #search:focus { border-color: var(--accent); }
+    .search-icon {
+      position: absolute;
+      left: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+
+    select {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.5rem 0.6rem;
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7265'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      padding-right: 1.8rem;
+    }
+    select:focus { border-color: var(--accent); }
+
+    .sala-buttons {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .sala-btn {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--ink);
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .sala-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sala-btn.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+
+    .date-row { display: flex; gap: 0.5rem; }
+    .date-row input {
+      flex: 1;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.5rem 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--ink);
+      outline: none;
+    }
+    .date-row input:focus { border-color: var(--accent); }
+
+    .reset-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: all 0.15s;
+    }
+    .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Results panel ── */
+    main {
+      display: flex;
+      flex-direction: column;
+    }
+    .results-header {
+      padding: 1rem 1.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+    .results-count {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .results-count strong { color: var(--ink); }
+
+    #results-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ── Fallo card ── */
+    .fallo-card {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.12s;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.25rem 1rem;
+    }
+    .fallo-card:hover { background: #eee9df; }
+    .fallo-card.selected { background: #e5dfd3; border-left: 3px solid var(--accent); }
+
+    .card-num {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .card-titulo {
+      font-family: var(--serif);
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--ink);
+      grid-column: 1;
+    }
+    .card-titulo mark {
+      background: #f5d67a;
+      color: var(--ink);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+    .card-caratula {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      font-style: italic;
+      grid-column: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-meta {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+      grid-column: 1 / -1;
+    }
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 2px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .tag-materia { background: #e8e0d0; color: var(--muted); }
+    .tag-sala { background: var(--ink); color: var(--gold); }
+    .tag-fecha { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .tag-exp { background: transparent; color: var(--accent); border: 1px solid #d4a0a0; font-size: 0.6rem; }
+
+    .card-right {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 0.25rem;
+      min-width: 60px;
+    }
+
+    /* ── Detail panel (modal) ── */
+    #detail-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,26,46,0.5);
+      z-index: 200;
+      backdrop-filter: blur(2px);
+    }
+    #detail-overlay.open { display: flex; align-items: flex-start; justify-content: flex-end; }
+
+    #detail-panel {
+      width: min(680px, 95vw);
+      height: 100vh;
+      background: var(--paper);
+      overflow-y: auto;
+      box-shadow: -8px 0 32px rgba(0,0,0,0.18);
+      animation: slideIn 0.22s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+    .detail-header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 1.25rem 1.5rem;
+      position: sticky;
+      top: 0;
+    }
+    .detail-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--paper);
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0.6;
+      line-height: 1;
+      padding: 0 0 0 1rem;
+    }
+    .detail-close:hover { opacity: 1; }
+    .detail-num {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .detail-titulo {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .detail-body { padding: 1.5rem; }
+
+    .detail-ficha {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem 1rem;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+    }
+    .ficha-key {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding-top: 0.1rem;
+    }
+    .ficha-val {
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .ficha-val.exp {
+      font-family: var(--mono);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .detail-section-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-texto {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: #2a2a3e;
+    }
+    .detail-texto mark {
+      background: #f5d67a;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
+    .empty h3 { font-family: var(--serif); font-weight: 400; margin-bottom: 0.5rem; }
+    .empty p { font-size: 0.82rem; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">CNCom <span>·</span> Jurisprudencia</div>
+  <div class="header-divider"></div>
+  <div class="header-sub">Cámara Nacional de Apelaciones en lo Comercial</div>
+  <div id="total-badge">— fallos</div>
+</header>
+
+<div class="layout">
+  <!-- Sidebar filtros -->
+  <aside>
+    <div class="filter-group">
+      <div class="filter-label">Búsqueda</div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" placeholder="Buscar en títulos, carátulas, texto…" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Expediente</div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search-exp" placeholder="COM 12345/2024" autocomplete="off" style="padding-left:2rem; width:100%; background:white; border:1px solid var(--border); border-radius:4px; padding-top:0.55rem; padding-bottom:0.55rem; font-size:0.82rem; font-family:var(--mono); color:var(--ink); outline:none;">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Sala</div>
+      <div class="sala-buttons" id="sala-buttons">
+        <button class="sala-btn active" data-sala="">TODAS</button>
+        <button class="sala-btn" data-sala="A">A</button>
+        <button class="sala-btn" data-sala="B">B</button>
+        <button class="sala-btn" data-sala="C">C</button>
+        <button class="sala-btn" data-sala="D">D</button>
+        <button class="sala-btn" data-sala="E">E</button>
+        <button class="sala-btn" data-sala="F">F</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Materia</div>
+      <select id="filter-materia">
+        <option value="">Todas las materias</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Período</div>
+      <div class="date-row">
+        <input type="date" id="fecha-desde" title="Desde">
+        <input type="date" id="fecha-hasta" title="Hasta">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Juez/a</div>
+      <input type="text" id="search-juez" placeholder="Apellido del vocal…" style="width:100%; background:white; border:1px solid var(--border); border-radius:4px; padding:0.55rem 0.6rem; font-size:0.82rem; font-family:var(--sans); color:var(--ink); outline:none;">
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Boletín</div>
+      <select id="filter-boletin">
+        <option value="">Todos los boletines</option>
+      </select>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Limpiar filtros</button>
+  </aside>
+
+  <!-- Panel principal -->
+  <main>
+    <div class="results-header">
+      <div class="results-count" id="results-count">Cargando…</div>
+    </div>
+    <div id="results-list"></div>
+  </main>
+</div>
+
+<!-- Panel de detalle -->
+<div id="detail-overlay">
+  <div id="detail-panel">
+    <div class="detail-header">
+      <button class="detail-close" id="detail-close">✕</button>
+      <div class="detail-num" id="d-num"></div>
+      <div class="detail-titulo" id="d-titulo"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-ficha" id="d-ficha"></div>
+      <div class="detail-section-label">Doctrina del fallo</div>
+      <div class="detail-texto" id="d-texto"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Estado global ─────────────────────────────────────────────────────────────
+let FALLOS = [];
+let filtros = {
+  texto: '',
+  expediente: '',
+  sala: '',
+  materia: '',
+  desde: '',
+  hasta: '',
+  juez: '',
+  boletin: ''
+};
+let selectedId = null;
+let searchTerms = [];
+
+// ── Carga de datos ────────────────────────────────────────────────────────────
+async function cargarDatos() {
+  const res = await fetch('data/fallos.json');
+  const data = await res.json();
+  FALLOS = data.fallos;
+
+  document.getElementById('total-badge').textContent =
+    `${data.meta.total_fallos} fallos · ${data.meta.generado.slice(0,10)}`;
+
+  // Poblar select de materias
+  const selMateria = document.getElementById('filter-materia');
+  data.meta.materias.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    selMateria.appendChild(opt);
+  });
+
+  // Poblar select de boletines
+  const bols = [...new Set(FALLOS.map(f => f.boletin))].sort();
+  const selBol = document.getElementById('filter-boletin');
+  bols.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b;
+    const fecha = FALLOS.find(f => f.boletin === b)?.boletin_fecha || '';
+    opt.textContent = `Boletín #${b}${fecha ? ' — ' + fecha : ''}`;
+    selBol.appendChild(opt);
+  });
+
+  renderResults();
+}
+
+// ── Filtrado ──────────────────────────────────────────────────────────────────
+function filtrar() {
+  searchTerms = filtros.texto.toLowerCase().split(/\s+/).filter(Boolean);
+  const expQ = filtros.expediente.toLowerCase().replace(/\s/g,'');
+  const juezQ = filtros.juez.toLowerCase();
+
+  return FALLOS.filter(f => {
+    // Texto libre (título + carátula + texto)
+    if (searchTerms.length) {
+      const haystack = (f.titulo + ' ' + f.caratula + ' ' + f.texto).toLowerCase();
+      if (!searchTerms.every(t => haystack.includes(t))) return false;
+    }
+    // Expediente
+    if (expQ) {
+      const expNorm = (f.expediente || '').toLowerCase().replace(/\s/g,'');
+      if (!expNorm.includes(expQ)) return false;
+    }
+    // Sala
+    if (filtros.sala && f.sala !== filtros.sala) return false;
+    // Materia
+    if (filtros.materia && f.materia !== filtros.materia) return false;
+    // Fechas
+    if (filtros.desde && f.fecha < filtros.desde) return false;
+    if (filtros.hasta && f.fecha > filtros.hasta) return false;
+    // Juez
+    if (juezQ) {
+      const juecesStr = (f.jueces || []).join(' ').toLowerCase();
+      if (!juecesStr.includes(juezQ)) return false;
+    }
+    // Boletín
+    if (filtros.boletin && String(f.boletin) !== String(filtros.boletin)) return false;
+
+    return true;
+  });
+}
+
+// ── Highlight ─────────────────────────────────────────────────────────────────
+function highlight(text, terms) {
+  if (!terms.length) return escapeHtml(text);
+  let result = escapeHtml(text);
+  terms.forEach(t => {
+    const re = new RegExp(escapeRegex(escapeHtml(t)), 'gi');
+    result = result.replace(re, m => `<mark>${m}</mark>`);
+  });
+  return result;
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ── Render lista ──────────────────────────────────────────────────────────────
+function renderResults() {
+  const resultados = filtrar();
+  const lista = document.getElementById('results-list');
+  const countEl = document.getElementById('results-count');
+
+  countEl.innerHTML = `<strong>${resultados.length}</strong> resultado${resultados.length !== 1 ? 's' : ''} de ${FALLOS.length} fallos`;
+
+  if (!resultados.length) {
+    lista.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⚖</div>
+        <h3>Sin resultados</h3>
+        <p>Probá con otros términos o ajustá los filtros.</p>
+      </div>`;
+    return;
+  }
+
+  lista.innerHTML = resultados.map(f => {
+    const tituloHtml = highlight(f.titulo, searchTerms);
+    const caratulaHtml = f.caratula ? highlight(f.caratula, searchTerms) : '';
+    const selected = f.id === selectedId ? ' selected' : '';
+    const fecha = f.fecha ? f.fecha.slice(0,10) : '';
+
+    return `
+    <div class="fallo-card${selected}" data-id="${f.id}" onclick="openDetail('${f.id}')">
+      <div>
+        <div class="card-num">N° ${f.numero} · Bol. ${f.boletin}</div>
+        <div class="card-titulo">${tituloHtml}</div>
+        ${caratulaHtml ? `<div class="card-caratula">${caratulaHtml}</div>` : ''}
+        <div class="card-meta">
+          ${f.sala ? `<span class="tag tag-sala">SALA ${f.sala}</span>` : ''}
+          ${f.materia ? `<span class="tag tag-materia">${f.materia}</span>` : ''}
+          ${fecha ? `<span class="tag tag-fecha">${fecha}</span>` : ''}
+          ${f.expediente ? `<span class="tag tag-exp">${f.expediente}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Detalle ───────────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const fallo = FALLOS.find(f => f.id === id);
+  if (!fallo) return;
+  selectedId = id;
+
+  // Actualizar selected en lista
+  document.querySelectorAll('.fallo-card').forEach(el => {
+    el.classList.toggle('selected', el.dataset.id === id);
+  });
+
+  document.getElementById('d-num').textContent =
+    `Fallo N° ${fallo.numero} · Boletín ${fallo.boletin} ${fallo.boletin_fecha ? '('+fallo.boletin_fecha+')' : ''}`;
+  document.getElementById('d-titulo').innerHTML = escapeHtml(fallo.titulo);
+
+  const ficha = [
+    ['Expediente', fallo.expediente || '—', 'exp'],
+    ['Carátula',   fallo.caratula   || '—', ''],
+    ['Sala',       fallo.sala ? 'Sala ' + fallo.sala : '—', ''],
+    ['Fecha',      fallo.fecha_raw  || '—', ''],
+    ['Vocal/es',   fallo.jueces?.length ? fallo.jueces.join(' · ') : '—', ''],
+    ['Materia',    fallo.materia    || '—', ''],
+  ];
+
+  document.getElementById('d-ficha').innerHTML = ficha.map(([k,v,cls]) =>
+    `<div class="ficha-key">${k}</div><div class="ficha-val ${cls}">${escapeHtml(v)}</div>`
+  ).join('');
+
+  const textoHtml = highlight(fallo.texto, searchTerms);
+  document.getElementById('d-texto').innerHTML = textoHtml;
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  selectedId = null;
+}
+
+// ── Eventos ───────────────────────────────────────────────────────────────────
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+});
+
+let debounceTimer;
+function debounce(fn) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(fn, 220);
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  filtros.texto = e.target.value;
+  debounce(renderResults);
+});
+
+document.getElementById('search-exp').addEventListener('input', e => {
+  filtros.expediente = e.target.value;
+  debounce(renderResults);
+});
+
+document.getElementById('search-juez').addEventListener('input', e => {
+  filtros.juez = e.target.value;
+  debounce(renderResults);
+});
+
+document.getElementById('filter-materia').addEventListener('change', e => {
+  filtros.materia = e.target.value;
+  renderResults();
+});
+
+document.getElementById('filter-boletin').addEventListener('change', e => {
+  filtros.boletin = e.target.value;
+  renderResults();
+});
+
+document.getElementById('fecha-desde').addEventListener('change', e => {
+  filtros.desde = e.target.value;
+  renderResults();
+});
+
+document.getElementById('fecha-hasta').addEventListener('change', e => {
+  filtros.hasta = e.target.value;
+  renderResults();
+});
+
+document.querySelectorAll('.sala-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sala-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filtros.sala = btn.dataset.sala;
+    renderResults();
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  filtros = { texto: '', expediente: '', sala: '', materia: '', desde: '', hasta: '', juez: '', boletin: '' };
+  document.getElementById('search').value = '';
+  document.getElementById('search-exp').value = '';
+  document.getElementById('search-juez').value = '';
+  document.getElementById('filter-materia').value = '';
+  document.getElementById('filter-boletin').value = '';
+  document.getElementById('fecha-desde').value = '';
+  document.getElementById('fecha-hasta').value = '';
+  document.querySelectorAll('.sala-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.sala-btn[data-sala=""]').classList.add('active');
+  renderResults();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+cargarDatos();
+</script>
+</body>
+</html>
